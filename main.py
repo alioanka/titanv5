@@ -9,6 +9,7 @@ from utils.logger import log_trade, log_balance
 from telegram.bot import send_alert
 
 print(f"🚀 Starting {BOT_NAME} on {EXCHANGE.upper()} - Mode: {MODE} | Testnet: {USE_TESTNET}")
+send_alert(f"🚀 Starting {BOT_NAME} on {EXCHANGE.upper()} - Mode: {MODE} | Testnet: {USE_TESTNET}")
 
 # Initialize exchange interface
 exchange = BybitFutures(testnet=USE_TESTNET)
