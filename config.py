@@ -8,11 +8,11 @@ USE_TESTNET = True
 
 ### === SYMBOLS TO TRADE === ###
 SYMBOLS = [
-    "BTCUSDT",
-    "ETHUSDT",
-    "SOLUSDT",
-    "BNBUSDT",
-    "XRPUSDT"
+    "BTCUSDT"#,
+#    "ETHUSDT",
+#    "SOLUSDT",
+#    "BNBUSDT",
+#    "XRPUSDT"
 ]
 
 ### === RISK MANAGEMENT === ###

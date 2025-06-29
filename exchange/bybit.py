@@ -15,32 +15,42 @@ class BybitFutures:
         return {"X-BAPI-API-KEY": self.api_key}
 
     def get_ohlcv(self, symbol, timeframe="1h", limit=100):
-        endpoint = f"/v5/market/kline"
+        # Choose correct category based on symbol suffix
+        category = "linear" if symbol.endswith("USDT") else "inverse"
+
+        endpoint = "/v5/market/kline"
         params = {
-            "category": "linear",
+            "category": category,
             "symbol": symbol,
             "interval": timeframe,
             "limit": limit
         }
-        res = requests.get(self.base_url + endpoint, params=params)
-        data = res.json()
 
-        # ✅ SAFETY CHECK
-        if data["retCode"] != 0:
-            raise Exception(f"Failed OHLCV fetch: {data['retMsg']}")
+        try:
+            res = requests.get(self.base_url + endpoint, params=params)
+            data = res.json()
 
-        # ✅ RETURN CLEANED CANDLE DATA
-        return [
-            {
-                "timestamp": int(c[0]),
-                "open": float(c[1]),
-                "high": float(c[2]),
-                "low": float(c[3]),
-                "close": float(c[4]),
-                "volume": float(c[5])
-            }
-            for c in data["result"]["list"]
-        ]
+            if data["retCode"] != 0 or "result" not in data or not data["result"]["list"]:
+                print(f"⚠️ No data returned for {symbol}: {data}")
+                return []
+
+            # Clean and return formatted candle data
+            return [
+                {
+                    "timestamp": int(c[0]),
+                    "open": float(c[1]),
+                    "high": float(c[2]),
+                    "low": float(c[3]),
+                    "close": float(c[4]),
+                    "volume": float(c[5])
+                }
+                for c in data["result"]["list"]
+            ]
+
+        except Exception as e:
+            print(f"❌ Error fetching OHLCV for {symbol}: {e}")
+            return []
+
 
 
     def get_balance(self):
