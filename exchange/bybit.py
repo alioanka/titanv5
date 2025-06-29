@@ -4,6 +4,7 @@ import requests
 import time
 import hmac
 import hashlib
+import uuid
 
 class BybitFutures:
     def __init__(self, testnet=True):
@@ -43,14 +44,52 @@ class BybitFutures:
         # Simulated — can connect to Bybit `/position` endpoint
         return []
 
+
+
     def place_order(self, symbol, side, qty, sl, tp, leverage):
-        print(f"📤 Placing {side} on {symbol} | Qty: {qty} | SL: {sl} | TP: {tp}")
-        entry_price = self._mock_price(symbol)
-        return {
-            "success": True,
-            "entry_price": entry_price,
-            "symbol": symbol
+        endpoint = "/v5/order/create"
+        url = self.base_url + endpoint
+        order_id = str(uuid.uuid4())[:18]
+
+        side_bybit = "Buy" if side == "LONG" else "Sell"
+
+        payload = {
+            "category": "linear",
+            "symbol": symbol,
+            "side": side_bybit,
+            "orderType": "Market",
+            "qty": str(qty),
+            "timeInForce": "GoodTillCancel",
+            "orderLinkId": order_id,
+            "reduceOnly": False,
+            "takeProfit": str(tp),
+            "stopLoss": str(sl),
+            "leverage": leverage
         }
+
+        headers = {
+            "X-BAPI-API-KEY": self.api_key,
+            "Content-Type": "application/json"
+        }
+
+        try:
+            res = requests.post(url, json=payload, headers=headers)
+            data = res.json()
+
+            if data.get("retCode") == 0:
+                print(f"✅ Order placed: {symbol} {side}")
+                return {
+                    "success": True,
+                    "entry_price": float(tp if side == "LONG" else sl),
+                    "symbol": symbol
+                }
+            else:
+                print(f"❌ Failed to place order: {data}")
+                return {"success": False}
+        except Exception as e:
+            print(f"❌ API Error placing order: {e}")
+            return {"success": False}
+
 
     def _mock_price(self, symbol):
         # Simulate a price for dev
