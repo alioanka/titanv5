@@ -20,7 +20,7 @@ def calculate_position_size(balance, candles, signal, symbol):
     # ✅ Cap size so cost doesn't exceed margin
     current_price = candles[-1]['close']
     max_allowed_qty = (balance * leverage) / current_price
-    safe_qty = max_allowed_qty * 0.80  # final safe buffer
+    safe_qty = max_allowed_qty * 0.70  # final safe buffer
 
     capped_size = min(raw_size * leverage, safe_qty)
     final_qty = max(round(capped_size, 3), 0.001)
