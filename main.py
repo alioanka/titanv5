@@ -28,6 +28,11 @@ def run_bot():
                     continue  # Skip if already in a trade
 
                 data = exchange.get_ohlcv(symbol, TIMEFRAME)
+
+                # 🛡️ Add this line right here:
+                if not data or 'close' not in data[-1]:
+                    print(f"⚠️ Skipping {symbol}: invalid OHLCV data → {data}")
+                    continue
                 signal = generate_signal(data)
 
                 if signal is None:
