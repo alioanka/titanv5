@@ -24,6 +24,9 @@ def calculate_position_size(balance, candles, signal, symbol):
 
     capped_size = min(raw_size * leverage, safe_qty)
     final_qty = max(round(capped_size, 3), 0.001)
+    if symbol == "BTCUSDT":
+        final_qty = min(final_qty, 2.0)  # known safe quantity
+
 
     print(f"💡 Final qty: {final_qty}, Max allowed: {max_allowed_qty:.3f}, Safe cap: {safe_qty:.3f}, Price: {current_price}, Leverage: {leverage}")
 
