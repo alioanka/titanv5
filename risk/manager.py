@@ -22,6 +22,11 @@ def calculate_position_size(balance, candles, signal, symbol):
 
     position_size *= leverage
 
+    # After position_size *= leverage:
+    max_qty = (balance * leverage) / candles[-1]["close"]
+    position_size = min(position_size, max_qty * 0.95)  # 95% buffer
+
+
     # === Final SL/TP levels ===
     last_close = candles[-1]['close']
     if signal['side'] == "LONG":
