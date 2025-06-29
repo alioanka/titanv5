@@ -64,7 +64,7 @@ class BybitFutures:
             "reduceOnly": False,
             "takeProfit": f"{tp:.2f}",
             "stopLoss": f"{sl:.2f}",
-            "leverage": leverage
+            "leverage": str(leverage)
         }
 
         # === Auth Headers ===
@@ -86,6 +86,9 @@ class BybitFutures:
             "X-BAPI-SIGN": signature,
             "Content-Type": "application/json"
         }
+
+        print(f"📦 Sending Order Payload:\n{json.dumps(payload, indent=2)}")
+
 
         try:
             response = requests.post(url, headers=headers, data=body_str)
