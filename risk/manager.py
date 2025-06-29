@@ -39,7 +39,8 @@ def calculate_position_size(balance, candles, signal, symbol):
     print(f"DEBUG → close: {last_close}, sl: {sl}, tp: {tp}, atr: {atr_value}")
 
 
-    return round(position_size, 4), round(sl, 2), round(tp, 2), leverage
+    position_size = max(round(position_size, 3), 0.001)
+    return position_size, round(sl, 2), round(tp, 2), leverage
 
 
 def place_trade(exchange, symbol, side, qty, sl, tp, leverage):
