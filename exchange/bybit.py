@@ -58,12 +58,12 @@ class BybitFutures:
             "symbol": symbol,
             "side": side_bybit,
             "orderType": "Market",
-            "qty": str(qty),
+            "qty": f"{qty:.4f}",
             "timeInForce": "GoodTillCancel",
             "orderLinkId": order_id,
             "reduceOnly": False,
-            "takeProfit": str(tp),
-            "stopLoss": str(sl),
+            "takeProfit": f"{tp:.2f}",
+            "stopLoss": f"{sl:.2f}",
             "leverage": leverage
         }
 
