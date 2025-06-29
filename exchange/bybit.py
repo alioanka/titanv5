@@ -5,6 +5,7 @@ import time
 import hmac
 import hashlib
 import uuid
+import json
 
 class BybitFutures:
     def __init__(self, testnet=True):
@@ -44,8 +45,6 @@ class BybitFutures:
         # Simulated — can connect to Bybit `/position` endpoint
         return []
 
-
-
     def place_order(self, symbol, side, qty, sl, tp, leverage):
         endpoint = "/v5/order/create"
         url = self.base_url + endpoint
@@ -53,6 +52,7 @@ class BybitFutures:
 
         side_bybit = "Buy" if side == "LONG" else "Sell"
 
+        # === Construct Payload ===
         payload = {
             "category": "linear",
             "symbol": symbol,
@@ -67,14 +67,29 @@ class BybitFutures:
             "leverage": leverage
         }
 
+        # === Auth Headers ===
+        timestamp = str(int(time.time() * 1000))
+        recv_window = "5000"
+        body_str = json.dumps(payload)
+
+        signature_payload = timestamp + self.api_key + recv_window + body_str
+        signature = hmac.new(
+            bytes(self.api_secret, "utf-8"),
+            msg=bytes(signature_payload, "utf-8"),
+            digestmod=hashlib.sha256
+        ).hexdigest()
+
         headers = {
             "X-BAPI-API-KEY": self.api_key,
+            "X-BAPI-TIMESTAMP": timestamp,
+            "X-BAPI-RECV-WINDOW": recv_window,
+            "X-BAPI-SIGN": signature,
             "Content-Type": "application/json"
         }
 
         try:
-            res = requests.post(url, json=payload, headers=headers)
-            data = res.json()
+            response = requests.post(url, headers=headers, data=body_str)
+            data = response.json()
 
             if data.get("retCode") == 0:
                 print(f"✅ Order placed: {symbol} {side}")
@@ -87,9 +102,8 @@ class BybitFutures:
                 print(f"❌ Failed to place order: {data}")
                 return {"success": False}
         except Exception as e:
-            print(f"❌ API Error placing order: {e}")
+            print(f"❌ Error placing order: {e}")
             return {"success": False}
-
 
     def _mock_price(self, symbol):
         # Simulate a price for dev
