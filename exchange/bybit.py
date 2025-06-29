@@ -29,7 +29,7 @@ class BybitFutures:
         return candles
 
     def get_balance(self):
-        return 5000.0
+        return 10000.0
 
     def get_open_positions(self):
         return []
