@@ -17,7 +17,7 @@ class BybitFutures:
         now = int(time.time() * 1000)
         candles = []
         for i in range(limit):
-            base = 101800 + (i * 10)  # aligned with Bybit testnet price
+            base = 103800 + (i * 10)  # ensure base price > 103700 consistently
             candles.append({
                 "timestamp": now - ((limit - i) * 3600 * 1000),
                 "open": base,
@@ -27,6 +27,7 @@ class BybitFutures:
                 "volume": 100 + i * 2
             })
         return candles
+
 
     def get_balance(self):
         return 10000.0
@@ -69,6 +70,9 @@ class BybitFutures:
             "X-BAPI-SIGN": signature,
             "Content-Type": "application/json"
         }
+        if tp <= sl:
+            print(f"⚠️ Skipping TP/SL application — TP ({tp}) not above SL ({sl})")
+            return
 
         try:
             print(f"📦 Sending Order Payload:\n{json.dumps(payload, indent=2)}")
