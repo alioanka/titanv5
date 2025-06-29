@@ -24,8 +24,12 @@ class BybitFutures:
         }
         res = requests.get(self.base_url + endpoint, params=params)
         data = res.json()
+
+        # ✅ SAFETY CHECK
         if data["retCode"] != 0:
-            raise Exception(f"Failed OHLCV: {data}")
+            raise Exception(f"Failed OHLCV fetch: {data['retMsg']}")
+
+        # ✅ RETURN CLEANED CANDLE DATA
         return [
             {
                 "timestamp": int(c[0]),
@@ -37,6 +41,7 @@ class BybitFutures:
             }
             for c in data["result"]["list"]
         ]
+
 
     def get_balance(self):
         # Simulated for now — replace with real call in prod
