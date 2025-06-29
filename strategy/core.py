@@ -18,10 +18,12 @@ def generate_signal(candles):
     trend_strength = df['trend'].iloc[-1] / df['close'].iloc[-1]
     volatility = df['volatility'].iloc[-1]
 
-    if abs(trend_strength) < MIN_TREND_STRENGTH:
-        return None  # No strong trend
-    if volatility < MIN_VOLATILITY:
-        return None  # Too flat
+#    if abs(trend_strength) < MIN_TREND_STRENGTH:
+#        return None  # No strong trend
+#    if volatility < MIN_VOLATILITY:
+#        return None  # Too flat
+    # FORCE signal for testing
+    print(f"🔍 Forcing entry for testing | Trend: {trend_strength:.4f} | Vol: {volatility:.4f}")
 
     # === Decide direction === #
     direction = "LONG" if trend_strength > 0 else "SHORT"
