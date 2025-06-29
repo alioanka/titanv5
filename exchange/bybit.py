@@ -15,41 +15,23 @@ class BybitFutures:
         return {"X-BAPI-API-KEY": self.api_key}
 
     def get_ohlcv(self, symbol, timeframe="1h", limit=100):
-        # Choose correct category based on symbol suffix
-        category = "linear" if symbol.endswith("USDT") else "inverse"
+        # ✅ MOCK OHLCV GENERATOR (1-hour candles)
+        now = int(time.time() * 1000)
+        candles = []
 
-        endpoint = "/v5/market/kline"
-        params = {
-            "category": category,
-            "symbol": symbol,
-            "interval": timeframe,
-            "limit": limit
-        }
+        for i in range(limit):
+            base = 30000 + (i * 10)  # Simulate a rising trend
+            candles.append({
+                "timestamp": now - ((limit - i) * 3600 * 1000),  # backdate each candle
+                "open": base,
+                "high": base + 50,
+                "low": base - 50,
+                "close": base + 25,
+                "volume": 100 + i * 2
+            })
 
-        try:
-            res = requests.get(self.base_url + endpoint, params=params)
-            data = res.json()
+        return candles
 
-            if data["retCode"] != 0 or "result" not in data or not data["result"]["list"]:
-                print(f"⚠️ No data returned for {symbol}: {data}")
-                return []
-
-            # Clean and return formatted candle data
-            return [
-                {
-                    "timestamp": int(c[0]),
-                    "open": float(c[1]),
-                    "high": float(c[2]),
-                    "low": float(c[3]),
-                    "close": float(c[4]),
-                    "volume": float(c[5])
-                }
-                for c in data["result"]["list"]
-            ]
-
-        except Exception as e:
-            print(f"❌ Error fetching OHLCV for {symbol}: {e}")
-            return []
 
 
 
