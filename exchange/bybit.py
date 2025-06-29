@@ -22,7 +22,7 @@ class BybitFutures:
         candles = []
 
         for i in range(limit):
-            base = 30000 + (i * 10)  # Simulate a rising trend
+            base = 100000 + (i * 10)  # Simulate a rising trend
             candles.append({
                 "timestamp": now - ((limit - i) * 3600 * 1000),  # backdate each candle
                 "open": base,
