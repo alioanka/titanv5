@@ -6,41 +6,35 @@ from telegram.bot import send_alert
 def calculate_position_size(balance, candles, signal, symbol):
     atr_value = signal['atr']
     if atr_value == 0:
-        return 0, 0, 0, 1  # Safety fallback
+        return 0, 0, 0, 1
 
-    # === Risk per trade ===
     max_loss = balance * MAX_RISK_PER_TRADE
-
-    # === Raw position size based on ATR stop ===
     sl_distance = atr_value * SL_MULTIPLIER
-    position_size = max_loss / sl_distance
+    raw_size = max_loss / sl_distance
 
-    # === Adaptive leverage ===
+    # Final leverage
     leverage = 1
     if DYNAMIC_LEVERAGE:
         leverage = min(int((TP_MULTIPLIER / SL_MULTIPLIER) * 2), 10)
 
-    position_size *= leverage
+    # ✅ Cap size so cost doesn't exceed margin
+    current_price = candles[-1]['close']
+    max_allowed_qty = (balance * leverage) / current_price
+    capped_size = min(raw_size * leverage, max_allowed_qty * 0.95)
 
-    # After position_size *= leverage:
-    max_qty = (balance * leverage) / candles[-1]["close"]
-    position_size = min(position_size, max_qty * 0.95)  # 95% buffer
+    # ✅ Enforce 0.001 min size, rounded to 3 digits
+    final_qty = max(round(capped_size, 3), 0.001)
 
-
-    # === Final SL/TP levels ===
-    last_close = candles[-1]['close']
+    # SL/TP
     if signal['side'] == "LONG":
-        sl = last_close - sl_distance
-        tp = last_close + (atr_value * TP_MULTIPLIER)
+        sl = current_price - sl_distance
+        tp = current_price + (atr_value * TP_MULTIPLIER)
     else:
-        sl = last_close + sl_distance
-        tp = last_close - (atr_value * TP_MULTIPLIER)
+        sl = current_price + sl_distance
+        tp = current_price - (atr_value * TP_MULTIPLIER)
 
-    print(f"DEBUG → close: {last_close}, sl: {sl}, tp: {tp}, atr: {atr_value}")
+    return final_qty, round(sl, 2), round(tp, 2), leverage
 
-
-    position_size = max(round(position_size, 3), 0.001)
-    return position_size, round(sl, 2), round(tp, 2), leverage
 
 
 def place_trade(exchange, symbol, side, qty, sl, tp, leverage):
