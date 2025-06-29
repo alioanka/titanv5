@@ -27,6 +27,8 @@ def generate_signal(candles):
 
     # === Decide direction === #
     direction = "LONG" if trend_strength > 0 else "SHORT"
+    print(f"DEBUG → Trend strength: {trend_strength}, ATR: {df['atr'].iloc[-1]}")
+
     return {
         "side": direction,
         "atr": df['atr'].iloc[-1]

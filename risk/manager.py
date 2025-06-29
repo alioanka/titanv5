@@ -31,6 +31,9 @@ def calculate_position_size(balance, candles, signal, symbol):
         sl = last_close + sl_distance
         tp = last_close - (atr_value * TP_MULTIPLIER)
 
+    print(f"DEBUG → close: {last_close}, sl: {sl}, tp: {tp}, atr: {atr_value}")
+
+
     return round(position_size, 4), round(sl, 2), round(tp, 2), leverage
 
 
