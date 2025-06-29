@@ -112,6 +112,15 @@ class BybitFutures:
             digestmod=hashlib.sha256
         ).hexdigest()
 
+        # 🧠 Guard: Ensure TP > Price for LONG
+        if side == "Buy" and tp <= sl:
+            print("⚠️ Invalid TP/SL for LONG — skipping")
+            return
+        if side == "Sell" and tp >= sl:
+            print("⚠️ Invalid TP/SL for SHORT — skipping")
+            return
+
+
         headers = {
             "X-BAPI-API-KEY": self.api_key,
             "X-BAPI-TIMESTAMP": timestamp,
