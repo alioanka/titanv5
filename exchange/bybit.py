@@ -22,7 +22,7 @@ class BybitFutures:
         candles = []
 
         for i in range(limit):
-            base = 10000 + (i * 2)  # Simulate a rising trend
+            base = 10200 + (i * 1.5)  # Simulate a rising trend
             candles.append({
                 "timestamp": now - ((limit - i) * 3600 * 1000),  # backdate each candle
                 "open": base,
@@ -95,7 +95,7 @@ class BybitFutures:
                 print(f"✅ Order placed: {symbol} {side}")
                 return {
                     "success": True,
-                    "entry_price": float(tp if side == "LONG" else sl),
+                    "entry_price": float(data["result"]["orderPrice"]) if "result" in data and "orderPrice" in data["result"] else 0.0,
                     "symbol": symbol
                 }
             else:
