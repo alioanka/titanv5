@@ -17,7 +17,7 @@ class BybitFutures:
         now = int(time.time() * 1000)
         candles = []
         for i in range(limit):
-            base = 10200 + (i * 1.5)
+            base = 101800 + (i * 10)  # aligned with Bybit testnet price
             candles.append({
                 "timestamp": now - ((limit - i) * 3600 * 1000),
                 "open": base,
@@ -52,14 +52,13 @@ class BybitFutures:
             "leverage": str(leverage)
         }
 
-        # === Auth ===
         timestamp = str(int(time.time() * 1000))
         recv_window = "5000"
         body_str = json.dumps(payload)
         signature_payload = timestamp + self.api_key + recv_window + body_str
         signature = hmac.new(
-            bytes(self.api_secret, "utf-8"),
-            msg=bytes(signature_payload, "utf-8"),
+            self.api_secret.encode(),
+            msg=signature_payload.encode(),
             digestmod=hashlib.sha256
         ).hexdigest()
 
@@ -81,7 +80,7 @@ class BybitFutures:
                 self.place_tp_sl(symbol, side_bybit, sl, tp)
                 return {
                     "success": True,
-                    "entry_price": 0.0,  # could be improved later via order query
+                    "entry_price": 0.0,
                     "symbol": symbol
                 }
             else:
@@ -108,8 +107,8 @@ class BybitFutures:
 
         signature_payload = timestamp + self.api_key + recv_window + body_str
         signature = hmac.new(
-            bytes(self.api_secret, "utf-8"),
-            msg=bytes(signature_payload, "utf-8"),
+            self.api_secret.encode(),
+            msg=signature_payload.encode(),
             digestmod=hashlib.sha256
         ).hexdigest()
 

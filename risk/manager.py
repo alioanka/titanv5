@@ -12,25 +12,19 @@ def calculate_position_size(balance, candles, signal, symbol):
     sl_distance = atr_value * SL_MULTIPLIER
     raw_size = max_loss / sl_distance
 
-    # Final leverage
     leverage = 1
     if DYNAMIC_LEVERAGE:
         leverage = min(int((TP_MULTIPLIER / SL_MULTIPLIER) * 2), 10)
 
-    # ✅ Cap size so cost doesn't exceed margin
     current_price = candles[-1]['close']
     max_allowed_qty = (balance * leverage) / current_price
-    safe_qty = max_allowed_qty * 0.70  # final safe buffer
+    safe_qty = max_allowed_qty * 0.70
 
     capped_size = min(raw_size * leverage, safe_qty)
     final_qty = max(round(capped_size, 3), 0.001)
-    if symbol == "BTCUSDT":
-        final_qty = min(final_qty, 2.0)  # known safe quantity
-
 
     print(f"💡 Final qty: {final_qty}, Max allowed: {max_allowed_qty:.3f}, Safe cap: {safe_qty:.3f}, Price: {current_price}, Leverage: {leverage}")
 
-    # SL/TP
     if signal['side'] == "LONG":
         sl = current_price - sl_distance
         tp = current_price + (atr_value * TP_MULTIPLIER)
@@ -38,10 +32,7 @@ def calculate_position_size(balance, candles, signal, symbol):
         sl = current_price + sl_distance
         tp = current_price - (atr_value * TP_MULTIPLIER)
 
-
     return final_qty, round(sl, 2), round(tp, 2), leverage
-
-
 
 def place_trade(exchange, symbol, side, qty, sl, tp, leverage):
     try:
